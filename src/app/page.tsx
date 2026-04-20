@@ -1,17 +1,16 @@
-import { createClient } from '@/lib/supabase/server'
+import { desc } from 'drizzle-orm'
+import { db } from '@/lib/db'
+
+export const dynamic = 'force-dynamic'
+import { notes } from '@/lib/db/schema'
 import QuickCapture from './components/QuickCapture'
 import NoteCard from './components/NoteCard'
-import type { Note } from '@/lib/types'
 
 export default async function Page() {
-  const supabase = await createClient()
-  const { data: notes } = await supabase
-    .from('notes')
-    .select('*')
-    .order('created_at', { ascending: false })
+  const all = await db.select().from(notes).orderBy(desc(notes.createdAt))
 
-  const todos = (notes as Note[] | null)?.filter((n) => n.type === 'todo') ?? []
-  const texts = (notes as Note[] | null)?.filter((n) => n.type === 'note') ?? []
+  const todos = all.filter((n) => n.type === 'todo')
+  const texts = all.filter((n) => n.type === 'note')
 
   return (
     <main className="max-w-xl mx-auto px-4 py-10">

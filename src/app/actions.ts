@@ -1,34 +1,32 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { eq } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { notes } from '@/lib/db/schema'
 import type { NoteType } from '@/lib/types'
 
 export async function createNote(content: string, type: NoteType) {
   if (!content.trim()) return
-  const supabase = await createClient()
-  await supabase.from('notes').insert({ content: content.trim(), type, done: false })
+  await db.insert(notes).values({ content: content.trim(), type })
   revalidatePath('/')
 }
 
 export async function deleteNote(id: string) {
-  const supabase = await createClient()
-  await supabase.from('notes').delete().eq('id', id)
+  await db.delete(notes).where(eq(notes.id, id))
   revalidatePath('/')
 }
 
 export async function toggleTodo(id: string, done: boolean) {
-  const supabase = await createClient()
-  await supabase.from('notes').update({ done }).eq('id', id)
+  await db.update(notes).set({ done }).where(eq(notes.id, id))
   revalidatePath('/')
 }
 
 export async function updateNote(id: string, content: string) {
   if (!content.trim()) return
-  const supabase = await createClient()
-  await supabase
-    .from('notes')
-    .update({ content: content.trim(), updated_at: new Date().toISOString() })
-    .eq('id', id)
+  await db
+    .update(notes)
+    .set({ content: content.trim(), updatedAt: new Date() })
+    .where(eq(notes.id, id))
   revalidatePath('/')
 }

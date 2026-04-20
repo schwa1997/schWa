@@ -4,8 +4,7 @@ import { useState, useTransition } from 'react'
 import { deleteNote, toggleTodo, updateNote } from '@/app/actions'
 import type { Note } from '@/lib/types'
 
-function formatDate(iso: string) {
-  const d = new Date(iso)
+function formatDate(d: Date) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
@@ -71,7 +70,7 @@ export default function NoteCard({ note }: { note: Note }) {
               {note.content}
             </p>
           )}
-          <p className="text-[11px] text-zinc-400 mt-1">{formatDate(note.created_at)}</p>
+          <p className="text-[11px] text-zinc-400 mt-1">{formatDate(note.createdAt)}</p>
         </div>
 
         <button
